@@ -102,7 +102,5 @@ http://localhost:3000
 ---
 
 ## 제출 정보
-
-- GitHub Repo: https://github.com/codnjs3575/codeit_Todo
-- 배포 링크: https://your-project-name.vercel.app
+- 배포 링크: [Vercel(로그인 인증 미필요)](https://codeit-todo-three.vercel.app/)
 
