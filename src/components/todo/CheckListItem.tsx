@@ -41,7 +41,7 @@ export default function CheckListItem({
         ${
           isDefault
             ? 'h-[50px] rounded-[27px] mt-4'
-            : 'sm:w-full h-16 rounded-[24px] mx-auto'
+            : 'sm:w-full h-16 rounded-[24px] mx-auto relative'
         }
     `}
     >
@@ -66,6 +66,7 @@ export default function CheckListItem({
 
       {/* 할 일 텍스트 영역 */}
       {/* isDefault(메인페이지)라면 p 태그, !isDefault(상세페이지)라면 input 태그 렌더링 */}
+
       {isDefault ? (
         <p
           className={`cursor-pointer break-words whitespace-normal overflow-x-hidden text-ellipsis line-clamp-1 pr-3 text-slate8 flex-1
@@ -78,17 +79,33 @@ export default function CheckListItem({
           {todo.name}
         </p>
       ) : (
-        <input
-          type="text"
-          id="userTodo"
-          value={userTodo !== undefined ? userTodo : todo.name}
-          className=" pr-3 text-slate9 font-bold text-xl leading-[23px] 
-          outline-none underline min-w-0 max-w-none bg-transparent"
-          size={(userTodo || todo.name).length * 1.5}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-            if (setUserTodo) setUserTodo(e.target.value)
-          }}
-        />
+        <>
+          {/* 숨겨진 텍스트 측정용 span */}
+          <span
+            id="inputWidthHelper"
+            className="absolute top-0 left-0 invisible whitespace-pre font-bold text-xl leading-[23px]"
+          >
+            {userTodo !== undefined ? userTodo : todo.name}
+          </span>
+
+          {/* 입력 필드 */}
+          <input
+            type="text"
+            id="userTodo"
+            value={userTodo !== undefined ? userTodo : todo.name}
+            className="text-slate9 font-bold text-xl leading-[23px] outline-none underline"
+            style={{
+              width: document.getElementById('inputWidthHelper')?.offsetWidth
+                ? `${
+                    document.getElementById('inputWidthHelper')!.offsetWidth + 2
+                  }px`
+                : 'auto',
+            }}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              if (setUserTodo) setUserTodo(e.target.value)
+            }}
+          />
+        </>
       )}
     </div>
   )
