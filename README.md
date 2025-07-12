@@ -35,6 +35,7 @@
 
 ## 디렉토리 구조
 
+```
 src/
 ├── api/ # API 호출 함수 정의 (todo.ts, image.ts)
 ├── components/ # 공용 컴포넌트 및 Todo 컴포넌트 분리
@@ -47,6 +48,7 @@ src/
 │ └── items/[id].tsx# 상세 페이지
 ├── types/ # TodoData 타입 정의
 └── styles/ # Tailwind 설정
+```
 
 ---
 
