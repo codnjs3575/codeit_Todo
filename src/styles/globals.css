@@ -1,26 +1,102 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquare/NanumSquareR.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquare/NanumSquareB.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquare/NanumSquareEB.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquare/NanumSquareL.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'NanumSquare', sans-serif;
+}
+
+@theme {
+  --color-slate9: #0f172a;
+  --color-slate8: #1e293b;
+  --color-slate5: #64748b;
+  --color-slate4: #94a3b8;
+  --color-slate3: #cbd5e1;
+  --color-slate2: #e2e8f0;
+  --color-slate1: #f1f5f9;
+
+  --color-violet6: #7c3aed;
+  --color-violet1: #ede9fe;
+
+  --color-rose5: #f43f5e;
+  --color-lime3: #bef264;
+  --color-amber8: #924e;
+
+  --breakpoint-sm: 375px;
+  --breakpoint-md: 744px;
+}
+
+.custom-container {
+  max-width: 1272px;
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 2.25rem;
+}
+
+@media (max-width: 744px) {
+  .custom-container {
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (max-width: 375px) {
+  .custom-container {
+    padding-inline: 1rem;
+  }
+}
+
+@layer components {
+  .shadow-custom {
+    box-shadow: 4px 4px #0f172a;
+    border-style: var(--tw-border-style);
+    border-width: 2px;
+    border-color: var(--color-slate9);
+    border-radius: 9999px;
+  }
+}
+
+@layer utilities {
+  .scrollbar-custom::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(51, 255, 129, 0.9);
+    border-radius: 4px;
+  }
+
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-amber-200) transparent;
+  }
 }

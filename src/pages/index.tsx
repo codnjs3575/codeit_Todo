@@ -1,115 +1,185 @@
-import Image from "next/image";
-import { Geist, Geist_Mono } from "next/font/google";
+// ---------------------------------------------------
+// 📄 index.tsx (Main Page of To-Do Application)
+//
+// ✅ 주요 역할:
+// - 사용자 입력을 받아 새로운 할 일 추가
+// - 서버로부터 할 일 목록을 불러오고 상태 관리
+// - 완료 여부 토글 기능 (낙관적 UI 업데이트 포함)
+// - 할 일/완료 목록 각각 렌더링
+//
+// 🧩 사용된 공용 컴포넌트:
+// - EmptyState: 할 일/완료 목록이 비어 있을 때 표시
+// - CheckListItem: 할 일 항목 UI
+// - IconTextButton: 입력창 우측의 추가 버튼
+//
+// 🛠️ 기술 스택:
+// - React (useState, useEffect)
+// - Next.js (SSR, Head)
+// - Tailwind CSS for 스타일링
+//
+// ---------------------------------------------------
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
+import Head from 'next/head'
+import Image from 'next/image'
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { useEffect, useState } from 'react'
 
-export default function Home() {
+import { getTodos, addTodo, TANANT_ID, updateTodo } from '@/api/todo'
+import { TodoData } from '@/types/todo'
+import EmptyState from '@/components/todo/EmptyState'
+import CheckListItem from '@/components/todo/CheckListItem'
+import IconTextButton from '@/components/common/IconTextButton'
+
+export default function HomePage() {
+  const [userTodo, setUserTodo] = useState<string>('') // 입력창 상태 관리
+  const [todos, setTodos] = useState<TodoData[]>([]) // 전체 할 일 목록 상태 관리
+  const todoList = todos.filter((todo) => !todo.isCompleted) // 완료되지 않은 할 일 목록 필터링 (TodoData[] 형태)
+  const doneList = todos.filter((todo) => todo.isCompleted) // 완료된 할 일 목록 필터링 (TodoData[] 형태)
+
+  useEffect(() => {
+    const fetchTodos = async () => {
+      try {
+        const todos = await getTodos()
+        const normalizedTodos = todos.map((todo) => ({
+          ...todo,
+          tenantId: TANANT_ID,
+        }))
+        setTodos(normalizedTodos)
+      } catch (error) {
+        console.error('Failed to fetch todos:', error)
+      }
+    }
+    fetchTodos()
+  }, [])
+
+  // todos(전체 할 일 목록)에 userTodo(새로운 할 일) 추가 핸들러
+  const handleTodoAddBtnClick = () => {
+    if (!userTodo.trim() || todos.some((t) => t.name === userTodo.trim()))
+      return
+
+    addTodo(userTodo).then((newTodo) => {
+      setTodos((prev) => [newTodo, ...prev])
+      setUserTodo('')
+    })
+  }
+
+  // 할 일의 'isCompleted' 핸들러 (낙관적 업데이트 방식으로 구현)
+  const handleTodoBtnClick = async (todo: TodoData) => {
+    const updatedTodo = {
+      ...todo,
+      isCompleted: !todo.isCompleted,
+    }
+
+    setTodos((prev) => prev.map((t) => (t.id === todo.id ? updatedTodo : t)))
+
+    try {
+      await updateTodo(updatedTodo)
+    } catch (error) {
+      console.error('Failed to update todo:', error)
+      setTodos((prev) => prev.map((t) => (t.id === todo.id ? todo : t))) // 실패 시 이전 상태로 롤백
+    }
+  }
+
   return (
-    <div
-      className={`${geistSans.className} ${geistMono.className} grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]`}
-    >
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/pages/index.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <>
+      <Head>
+        <title>do it : 할 일 목록</title>
+      </Head>
+      <main className="w-full">
+        {/* 검색바 & 추가 버튼 영역 */}
+        <section className="flex flex-row justify-between items-center gap-2 sm:gap-4 h-[53px]">
+          <input
+            type="text"
+            id="todo-input"
+            placeholder="할 일을 입력해주세요"
+            className="shadow-custom px-6 pt-[17px] pb-[21px] w-[280px] sm:w-full h-[56px] 
+            leading-[16px] max-w-[1016px] bg-slate1 outline-none font-normal"
+            value={userTodo}
+            onChange={(e) => setUserTodo(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.nativeEvent.isComposing) return // IME 입력 중인 경우 이벤트 무시
+              if (e.key === 'Enter') {
+                handleTodoAddBtnClick()
+              }
+            }}
+          />
+          <IconTextButton
+            icon={
+              <Image
+                src={
+                  userTodo
+                    ? '/images/button/icons/plus.svg'
+                    : '/images/button/icons/plus_dark.svg'
+                }
+                alt="plus"
+                width={16}
+                height={16}
+              />
+            }
+            text="추가하기"
+            type="추가"
+            isUserTodo={userTodo !== ''}
+            onClick={handleTodoAddBtnClick}
+          />
+        </section>
+
+        {/* 할 일 목록 영역 */}
+        <section className="flex flex-col gap-12 mt-8 md:flex-row md:gap-6">
+          {/* TO DO 목록 */}
+          <div className="w-full md:w-1/2">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/images/icon/todo.svg"
+              alt="todo"
+              width={101}
+              height={36}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+            {todoList.length === 0 ? (
+              <EmptyState
+                iconName="todo"
+                messageLine1="할 일이 없어요."
+                messageLine2="TODO를 새롭게 추가해주세요!"
+              />
+            ) : (
+              todoList.map((todo) => (
+                <CheckListItem
+                  key={todo.id}
+                  todo={todo}
+                  type="todo"
+                  layout="default"
+                  onClick={() => handleTodoBtnClick(todo)}
+                />
+              ))
+            )}
+          </div>
+
+          {/* DONE 목록 */}
+          <div className="w-full md:w-1/2">
+            <Image
+              src="/images/icon/done.svg"
+              alt="done"
+              width={101}
+              height={36}
+            />
+            {doneList.length === 0 ? (
+              <EmptyState
+                iconName="done"
+                messageLine1="아직 다 한 일이 없어요."
+                messageLine2="해야 할 일을 체크해보세요!"
+              />
+            ) : (
+              doneList.map((done) => (
+                <CheckListItem
+                  key={done.id}
+                  todo={done}
+                  type="done"
+                  layout="default"
+                  onClick={() => handleTodoBtnClick(done)}
+                />
+              ))
+            )}
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=default-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    </>
+  )
 }
