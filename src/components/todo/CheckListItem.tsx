@@ -81,9 +81,10 @@ export default function CheckListItem({
         <input
           type="text"
           id="userTodo"
-          style={{ width: `${(userTodo || todo.name).length + 2}ch` }}
           value={userTodo !== undefined ? userTodo : todo.name}
-          className=" pr-3 text-slate9 font-bold text-xl leading-[23px]  outline-none underline w-auto min-w-0 max-w-none bg-transparent"
+          className=" pr-3 text-slate9 font-bold text-xl leading-[23px] 
+          outline-none underline min-w-0 max-w-none bg-transparent"
+          size={(userTodo || todo.name).length * 1.5}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
             if (setUserTodo) setUserTodo(e.target.value)
           }}
