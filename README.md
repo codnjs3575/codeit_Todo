@@ -19,10 +19,8 @@
 | 메인 페이지 (PC 환경)                           | 상세 페이지 (PC 환경)                               |
 | ----------------------------------------------- | --------------------------------------------------- |
 | ![main](./public/images/README/main_pc.png)     | ![detail](./public/images/README/detail_pc.png)     |
-| :---------------------:                         | :---------------------:                             |
 | 메인 페이지 (태블릿 환경)                       | 상세 페이지 (태블릿 환경)                           |
 | ![main](./public/images/README/main_tablet.jpg) | ![detail](./public/images/README/detail_tablet.jpg) |
-| :---------------------:                         | :---------------------:                             |
 | 메인 페이지 (모바일 환경)                       | 상세 페이지 (모바일 환경)                           |
 | --------------------------------------          | ------------------------------------------          |
 | ![main](./public/images/README/main_mobile.jpg) | ![detail](./public/images/README/detail_mobile.jpg) |
